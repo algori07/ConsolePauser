@@ -43,13 +43,18 @@ Process exited with return value 0 after 0.045s.
 Press enter to continue . . .
 ```
 ## How to build
-- Building single file:
+### Building single file:
 Just build main.c by whatever compiler.
-- Using CMake:
-+ Using Visual Studio generator (windows only):
+### Using CMake:
+- Using Visual Studio generator (windows only):
 `cmake -B build -G "Visual Studio 16" && cmake --build build --config Release`
+
 (You can replace "16" by other number, cmake --help for more)
+
 You will find ConsolePauser.exe in folder "build\Release"
-+ Using other generator:
+
+- Using other generator:
+
 `cmake -B build -G <generator> -DCMAKE_BUILD_TYPE=Release && cmake --build build`
+
 You will find ConsolePauser.exe in folder "build"
