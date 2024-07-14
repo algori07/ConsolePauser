@@ -3,6 +3,7 @@
 A simple console program written in C have the same functionality as ConsolePauser.exe that come with Dev-C++. I made it for cross-platform purposes and usable in other projects. (just like the pauser of Dev-C++ but can be use in linux)
 ## How to use
 Running other program and pause the console before it close. Useful for competitive programming.
+```
 Command line usage: ConsolePauser.exe [option] "<program> arguments ..."
 Options:
   [-e/--exit] Exit on finished without press enter key to exit.
@@ -14,6 +15,7 @@ By default, the return value is the one of the program.
   [-r/--return-return] Return the "return value" from the execution.
   [-s/--return-success] Always return success on exited.
   [-h/--help] Show help.
+```
 ## Example
 ```cpp
 #include <iostream>
