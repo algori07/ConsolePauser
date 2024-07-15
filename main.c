@@ -2,16 +2,20 @@
 #include <string.h> // for parsing argument
 #include <stdbool.h> // bool
 
+#include <time.h>
+
 // use \r\n for windows and \n for unix
 #if defined(_WIN32)
   #define ISWINDOWS
   #define ENDLINE "\r\n"
-  #include <windows.h> // for CreateProcess() and getch()
+  #include <windows.h> // for CreateProcess()
+  #include <conio.h> // for getch()
   #include <time.h> // for clock() and CLOCKS_PER_SEC
 #elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
   #define ISUNIX
   #define ENDLINE "\n"
   #include <stdlib.h> // for system()
+  #include <sys/time.h>
 #endif
 
 int start(const char *command);
@@ -87,36 +91,43 @@ int main(int argc,char **argv)
     return EXIT_SUCCESS;
   }
   
-  unsigned long long timer_start,timermilis;
-  long double timersec;
+  long long timermillis; // use long long to handle large number of milliseconds since epoch
+  float timersec;
   int returnvalue;
   
 #if defined(ISWINDOWS)
-  timersec=clock(); // not in seconds unit
+  
+  clock_t timerclock=clock();
+  
   returnvalue=start(program);
-  timersec=(long double)(clock()-timersec)/CLOCKS_PER_SEC; // in seconds unit
-  timermilis=timersec*1000;
+  
+  timerclock=clock()-timerclock;
+  printf("%d %d",timerclock,CLOCKS_PER_SEC);
+  timersec=timerclock/(float)CLOCKS_PER_SEC;
+  timermillis=timersec*1000;
+  
 #elif defined(ISUNIX) // clock() doesn't seem to be work on linux systems when using system() to start process
-  timeval tv;
-  gettimeofday(&tv, NULL);
-  timermilis = tv.tv_sec*1000 + tv.tv_usec/1000;
-  timersec = tv.tv_sec + (double)tv.tv_usec/1000000;
+  // 1 seconds = 1000 millisecond
+  // 1 millisecond = 1 000 000 nanosecond ( *.tv_nsec )
+  // there is CLOCK_BOOTTIME better than CLOCK_MONOTONIC in some case
+  // but it's only available on linux
+  
+  struct timespec timer;
+  clock_gettime(CLOCK_REALTIME,&timer);
+  timermillis=(long long)timer.tv_sec*1000+timer.tv_nsec/1000000;
+  // printf("%d %d\n",timer.tv_sec,timer.tv_nsec);
   
   returnvalue=start(program);
   
-  gettimeofday(&tv, NULL);
-  timermilis = tv.tv_sec*1000 + tv.tv_usec/1000 - timermilis;
-  timersec = tv.tv_sec + (double)tv.tv_usec/1000000 - timersec;
-  
+  clock_gettime(CLOCK_REALTIME,&timer);
+  timermillis=(long long)timer.tv_sec*1000+timer.tv_nsec/1000000 - timermillis;
+  // printf("%d %d\n",timer.tv_sec,timer.tv_nsec);
+  timersec=(float)timermillis/1000;
   
 #endif
   
   
   
-  // if(opt[ExitOnFinished])
-  //  if(opt[ReturnTimer]) return timer;
-  //  else if(opt[ReturnReturn]) return returnvalue;
-  //  else if(opt[ReturnSuccess]) return EXIT_SUCCESS;
   
   printf("%s",ENDLINE);
   printf("--------------------------------%s",ENDLINE);
@@ -129,16 +140,16 @@ int main(int argc,char **argv)
   {
 #if defined(ISWINDOWS)
     printf("Press any key to continue . . .");
-    fflush(stdin);
-    getchar();
+    getch();
 #else
     printf("Press enter key to continue . . .");
-    getch();
+    fflush(stdin);
+    getchar();
 #endif
   }
   
   
-  if(opt[ReturnTimer]) return timermilis;
+  if(opt[ReturnTimer]) return timermillis;
   else if(opt[ReturnReturn]) return returnvalue;
   else if(opt[ReturnSuccess]) return EXIT_SUCCESS;
   
@@ -172,7 +183,7 @@ int start(const char *command)
   
   return ret;
 #elif defined(ISUNIX)
-  int ret=system("command");
+  int ret=system(command);
   return ret;
 #endif
 }
