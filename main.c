@@ -1,8 +1,7 @@
 #include <stdio.h> // io
 #include <string.h> // for parsing argument
 #include <stdbool.h> // bool
-
-#include <time.h>
+#include <ctype.h> // isspace()
 
 // use \r\n for windows and \n for unix
 #if defined(_WIN32)
@@ -15,7 +14,7 @@
   #define ISUNIX
   #define ENDLINE "\n"
   #include <stdlib.h> // for system()
-  #include <sys/time.h>
+  #include <time.h> // for clock_gettime() (only available on posix)
 #endif
 
 int start(const char *command);
@@ -66,17 +65,41 @@ int main(int argc,char **argv)
     else
     {
       programsize+=strlen(argv[i])+1; // with a space character
+      bool hasspace=false;
+      for(int idx=0;argv[i][idx]!='\0';++idx)
+      {
+        if(isspace(argv[i][idx]))
+        {
+          hasspace=true;
+          programsize+=2; // and this -> ""
+          break;
+        }
+      }
       program=(char*)realloc(program,programsize);
-      strcat(program," ");
+      strcat(program,(hasspace?" \"":" "));
       strcat(program,argv[i]);
+      if(hasspace) strcat(program,"\"");
     }
     if(!kt)
     {
       if(program==NULL)
       {
         programsize=strlen(argv[i])+1; //with \0 character
+        bool hasspace=false;
+        for(int idx=0;argv[i][idx]!='\0';++idx)
+        {
+          if(isspace(argv[i][idx]))
+          {
+            hasspace=true;
+            programsize+=2; // and this -> ""
+            break;
+          }
+        }
         program=(char*)malloc(programsize*sizeof(char));
-        strcpy(program,argv[i]);
+        program[0]='\0';
+        if(hasspace) strcat(program,"\"");
+        strcat(program,argv[i]);
+        if(hasspace) strcat(program,"\"");
       }
     }
   }
@@ -91,6 +114,7 @@ int main(int argc,char **argv)
     return EXIT_SUCCESS;
   }
   
+  
   long long timermillis; // use long long to handle large number of milliseconds since epoch
   float timersec;
   int returnvalue;
@@ -102,7 +126,6 @@ int main(int argc,char **argv)
   returnvalue=start(program);
   
   timerclock=clock()-timerclock;
-  printf("%d %d",timerclock,CLOCKS_PER_SEC);
   timersec=timerclock/(float)CLOCKS_PER_SEC;
   timermillis=timersec*1000;
   
