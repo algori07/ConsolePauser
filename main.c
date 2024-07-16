@@ -191,7 +191,7 @@ int start(const char *command)
   si.cb = sizeof(si);
   ZeroMemory( &pi, sizeof(pi) );
   
-  char *command2=malloc(strlen(command)*sizeof(char));
+  char *command2=(char*)malloc((strlen(command)+1)*sizeof(char)); // +1 for \0 at the end string
   strcpy(command2,command); // remove "const"
   
   CreateProcess(NULL,command2,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
