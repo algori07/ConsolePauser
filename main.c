@@ -1,4 +1,5 @@
 #include <stdio.h> // io
+#include <stdlib.h> // for malloc() and realloc()
 #include <string.h> // for parsing argument
 #include <stdbool.h> // bool
 #include <ctype.h> // isspace()
