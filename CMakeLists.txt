@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
+# add support to windows xp
+cmake_minimum_required(VERSION 3.13.5)
 
 
 project(ConsolePauser C)

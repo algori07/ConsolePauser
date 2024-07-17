@@ -45,8 +45,18 @@ Press enter to continue . . .
 ## How to build
 ### Building single file:
 Just build main.c by whatever compiler.
+#### Example on Windows
+- Using TinyCC: `tcc main.c -o ConsolePauser.exe`
+- Using MinGW: `gcc main.c -o ConsolePauser.exe`
+- Using Clang: `clang main.c -o ConsolePauser.exe`
+#### Example on Linux
+- Using TinyCC: `tcc main.c -o ConsolePauser`
+- Using GCC: `gcc main.c -o ConsolePauser`
+- Using Clang: `clang main.c -o ConsolePauser`
+
 ### Using CMake:
 - Using Visual Studio generator (windows only):
+
 `cmake -B build -G "Visual Studio 16" && cmake --build build --config Release`
 
 (You can replace "16" by other number, cmake --help for more)

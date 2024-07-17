@@ -195,7 +195,19 @@ int start(const char *command)
   char *command2=(char*)malloc((strlen(command)+1)*sizeof(char)); // +1 for \0 at the end string
   strcpy(command2,command); // remove "const"
   
-  CreateProcess(NULL,command2,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
+  // bool successed=;
+  if((0==CreateProcess(NULL,command2,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi)))
+  {
+    DWORD errorcode=GetLastError();
+    LPSTR errorstring=NULL;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                  NULL,errorcode,MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),(LPSTR)&errorstring,0,NULL);
+    printf("Couldn't start command line: %s%s",command,ENDLINE);
+    printf("Error: %s",errorstring); // message have \r\n in the end
+    
+    LocalFree(errorstring);
+  }
+  
   WaitForSingleObject(pi.hProcess,INFINITE);
   
   DWORD ret;
