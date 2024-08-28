@@ -164,7 +164,7 @@ int main(int argc,char **argv)
   {
 #if defined(ISWINDOWS)
     printf("Press any key to continue . . .");
-    getch();
+    _getch();
 #else
     printf("Press enter key to continue . . .");
     fflush(stdin);
