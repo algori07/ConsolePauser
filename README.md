@@ -50,9 +50,9 @@ Just build main.c by whatever compiler.
 - Using MinGW: `gcc main.c -o ConsolePauser.exe`
 - Using Clang: `clang main.c -o ConsolePauser.exe`
 #### Example on Linux
-- Using TinyCC: `tcc main.c -o ConsolePauser`
-- Using GCC: `gcc main.c -o ConsolePauser`
-- Using Clang: `clang main.c -o ConsolePauser`
+- Using TinyCC: `tcc main.c -o consolepauser`
+- Using GCC: `gcc main.c -o consolepauser`
+- Using Clang: `clang main.c -o consolepauser`
 
 ### Using CMake:
 - Using Visual Studio generator (windows only):
