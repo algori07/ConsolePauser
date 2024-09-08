@@ -1,8 +1,15 @@
 # CMake build directory
 build/
+out/
+
+# my custom output folder
+.vscode/win/
+.vscode/linux/
+.vscode/build/
+.qtcreator/
 
 # Qt Creator config
-CMakeLists.txt.user
+CMakeLists.txt.user*
 
 # Prerequisites
 *.d

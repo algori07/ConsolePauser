@@ -16,6 +16,8 @@
   #define ENDLINE "\n"
   #include <stdlib.h> // for system()
   #include <time.h> // for clock_gettime() (only available on posix)
+#else
+  #define ENDLINE "\n"
 #endif
 
 int start(const char *command);
@@ -49,41 +51,62 @@ int main(int argc,char **argv)
   memset(opt,false,sizeof(opt));
   size_t programsize=0; // for realloc
   char *program=NULL;
+  bool endofoptions=false;
   for(int i=1;i<argc;i++)
   {
-    bool kt=false;
-    if(program==NULL)
+    if(!endofoptions)
     {
-      for(int j=0;j<NumberOfOptions;j++)
+      // printf("debug");
+      if(strcmp(argv[i],"--")==0||strcmp(argv[i],"--command")==0)
       {
-        if(strcmp(argv[i],options[j][0])==0||strcmp(argv[i],options[j][1])==0)
+      // printf("debug2");
+        endofoptions=true;
+      }
+      else if(argv[i][0]=='-')
+      {
+      // printf("debug3");
+        bool unknowed=true;
+        for(int j=0;j<NumberOfOptions;j++)
         {
-          opt[j]=true;
-          kt=true;
+          if(strcmp(argv[i],options[j][0])==0||strcmp(argv[i],options[j][1])==0)
+          {
+            opt[j]=true;
+            unknowed=false;
+            break;
+          }
+        }
+        if(unknowed)
+        {
+          printf("Unknowed option %s. See %s --help for available options.",argv[i],argv[0]);
+          return EXIT_FAILURE;
         }
       }
-    }
-    else
-    {
-      programsize+=strlen(argv[i])+1; // with a space character
-      bool hasspace=false;
-      for(int idx=0;argv[i][idx]!='\0';++idx)
+      else
       {
-        if(isspace(argv[i][idx]))
-        {
-          hasspace=true;
-          programsize+=2; // and this -> ""
-          break;
-        }
+        endofoptions=true;
       }
-      program=(char*)realloc(program,programsize);
-      strcat(program,(hasspace?" \"":" "));
-      strcat(program,argv[i]);
-      if(hasspace) strcat(program,"\"");
     }
-    if(!kt)
+    if(endofoptions)
     {
-      if(program==NULL)
+      if(program!=NULL)
+      {
+        programsize+=strlen(argv[i])+1; // with a space character
+        bool hasspace=false;
+        for(int idx=0;argv[i][idx]!='\0';++idx)
+        {
+          if(isspace(argv[i][idx]))
+          {
+            hasspace=true;
+            programsize+=2; // and this -> ""
+            break;
+          }
+        }
+        program=(char*)realloc(program,programsize);
+        strcat(program,(hasspace?" \"":" "));
+        strcat(program,argv[i]);
+        if(hasspace) strcat(program,"\"");
+      }
+      else // (endofoptions&&program==NULL)
       {
         programsize=strlen(argv[i])+1; //with \0 character
         bool hasspace=false;
@@ -104,20 +127,31 @@ int main(int argc,char **argv)
       }
     }
   }
+  
   if(opt[Help]||argc==1)
   {
-    printf("Usage: %s [option] \"<program> arguments ...\"%s",argv[0],ENDLINE);
+    printf("Usage:%s",ENDLINE);
+    printf("  %s [option] [--/--command] <program> [arguments...]%s",argv[0],ENDLINE);
     printf("Options: %s",ENDLINE);
+    printf("  [--/--command] Everything after --/--command will be <program> [arguments].%s"
+           "Use for program start with\"-\". Without --/--command, <program> [arguments] will%s"
+           "start from the first argument which don't start with \"-\".%s%s",ENDLINE,ENDLINE,ENDLINE,ENDLINE);
     for(int j=0;j<NumberOfOptions;j++)
     {
-      printf("  [%s/%s] %s \r%s",options[j][0],options[j][1],options[j][2],ENDLINE);
+      printf("  [%s/%s] %s %s",options[j][0],options[j][1],options[j][2],ENDLINE);
     }
     return EXIT_SUCCESS;
   }
   
+  if(program==NULL)
+  {
+    printf("Missing argument <program>. Exit!%s",ENDLINE);
+    return EXIT_FAILURE;
+  }
+  
   
   long long timermillis; // use long long to handle large number of milliseconds since epoch
-  float timersec;
+  double timersec; // i don't know why, but use long double lead to overflows error
   int returnvalue;
   
 #if defined(ISWINDOWS)
@@ -127,7 +161,7 @@ int main(int argc,char **argv)
   returnvalue=start(program);
   
   timerclock=clock()-timerclock;
-  timersec=timerclock/(float)CLOCKS_PER_SEC;
+  timersec=(double)timerclock/(double)CLOCKS_PER_SEC;
   timermillis=timersec*1000;
   
 #elif defined(ISUNIX) // clock() doesn't seem to be work on linux systems when using system() to start process
@@ -146,7 +180,7 @@ int main(int argc,char **argv)
   clock_gettime(CLOCK_REALTIME,&timer);
   timermillis=(long long)timer.tv_sec*1000+timer.tv_nsec/1000000 - timermillis;
   // printf("%d %d\n",timer.tv_sec,timer.tv_nsec);
-  timersec=(float)timermillis/1000;
+  timersec=timermillis/(long double)1000;
   
 #endif
   
@@ -219,7 +253,17 @@ int start(const char *command)
   
   return ret;
 #elif defined(ISUNIX)
-  int ret=system(command);
-  return ret;
+  int status=system(command); // in linux, system() return a status variable instead return value
+  if(WIFEXITED(status)) return WEXITSTATUS(status);
+  else if(WIFSIGNALED(status))
+  {
+    printf("Error: The program exited because of signal (signal no:%d)%s.",WTERMSIG(status),ENDLINE);
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    printf("Error: Couldn't get return value of the program.");
+    return EXIT_FAILURE;
+  }
 #endif
 }
