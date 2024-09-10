@@ -136,7 +136,7 @@ int main(int argc,char **argv)
       }
     }
   }
-  
+
   if(opt[Help]||argc==1)
   {
     printf("Usage:%s",ENDLINE);
@@ -151,57 +151,57 @@ int main(int argc,char **argv)
     }
     return EXIT_SUCCESS;
   }
-  
+
   if(program==NULL)
   {
     printf("Missing argument <program>. Exit!%s",ENDLINE);
     return EXIT_FAILURE;
   }
-  
-  
+
+
   long long timermillis; // unix: use long long to handle large number of milliseconds since epoch
   long double timersec; // (not anymore) i don't know why, but use long double lead to overflows error
   int returnvalue;
-  
+
 #if defined(ISWINDOWS)
-  
+
   long long timerclock=(long long)clock();
-  
+
   returnvalue=start(program);
-  
+
   timerclock=clock()-timerclock;
   timersec=timerclock/(long double)CLOCKS_PER_SEC;
   timermillis=timersec*1000;
-  
+
 #elif defined(ISUNIX) // clock() doesn't seem to be work on linux systems when using system() to start process
   // 1 seconds = 1000 millisecond
   // 1 millisecond = 1 000 000 nanosecond ( *.tv_nsec )
   // there is CLOCK_BOOTTIME better than CLOCK_MONOTONIC in some case
   // but it's only available on linux
-  
+
   struct timespec timer;
   clock_gettime(CLOCK_REALTIME,&timer);
   timermillis=(long long)timer.tv_sec*1000+timer.tv_nsec/1000000;
   // printf("%d %d\n",timer.tv_sec,timer.tv_nsec);
-  
+
   returnvalue=start(program);
-  
+
   clock_gettime(CLOCK_REALTIME,&timer);
   timermillis=(long long)timer.tv_sec*1000+timer.tv_nsec/1000000 - timermillis;
   // printf("%d %d\n",timer.tv_sec,timer.tv_nsec);
   timersec=timermillis/(long double)1000;
-  
+
 #endif
-  
-  
-  
-  
+
+
+
+
   printf("%s",ENDLINE);
   printf("--------------------------------%s",ENDLINE);
   printf("Process exited with return value %d",returnvalue);
-  if(!opt[NoTimer]) printf(" after %.3fs",timersec);
+  if(!opt[NoTimer]) printf(" after %.3fs",(double)timersec);
   printf(".%s",ENDLINE);
-  
+
 
   if(!opt[ExitOnFinished])
   {
@@ -214,12 +214,12 @@ int main(int argc,char **argv)
     getchar();
 #endif
   }
-  
-  
+
+
   if(opt[ReturnTimer]) return timermillis;
   else if(opt[ReturnReturn]) return returnvalue;
   else if(opt[ReturnSuccess]) return EXIT_SUCCESS;
-  
+
   return returnvalue;
 }
 
@@ -230,14 +230,14 @@ int start(char *command)
 #if defined(ISWINDOWS)
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
-  
+
   ZeroMemory( &si, sizeof(si) );
   si.cb = sizeof(si);
   ZeroMemory( &pi, sizeof(pi) );
-  
+
 //  char *command2=(char*)malloc((strlen(command)+1)*sizeof(char)); // +1 for \0 at the end string
 //  strcpy(command2,command); // remove "const"
-  
+
   // bool successed=;
   if((0==CreateProcess(NULL,command,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi)))
   {
@@ -247,19 +247,19 @@ int start(char *command)
                   NULL,errorcode,MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),(LPSTR)&errorstring,0,NULL);
     printf("Couldn't start command line: %s%s",command,ENDLINE);
     printf("Error: %s",errorstring); // message have \r\n in the end
-    
+
     LocalFree(errorstring);
   }
-  
+
   WaitForSingleObject(pi.hProcess,INFINITE);
-  
+
   DWORD ret;
   GetExitCodeProcess(pi.hProcess,&ret);
-  
+
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
 //  free(command2);
-  
+
   return ret;
 #elif defined(ISUNIX)
   int status=system(command); // in linux, system() return a status variable instead return value

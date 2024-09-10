@@ -1,0 +1,7 @@
+*.layout
+
+*.o
+*.exe
+*.pch
+gmon.out
+Makefile.win

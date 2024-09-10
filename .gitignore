@@ -1,6 +1,6 @@
 # Dev-C++ output file
-*.layout
-Makefile.win
+# *.layout
+# Makefile.win
 
 # CMake build directory
 build/
