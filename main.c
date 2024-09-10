@@ -20,7 +20,8 @@
   #define ENDLINE "\n"
 #endif
 
-int start(const char *command);
+
+int start(char *command);
 
 enum Option
 {
@@ -34,20 +35,21 @@ enum Option
 };
 const char *options[NumberOfOptions][3] =
 {
-  {"-e","--exit","Exit on finished without press enter key to exit. \n\
-By default, you need to press enter key to exit."},
-  {"-n","--no-timer","Do not display execution time. \n\
-By default, the execution time will be displayed after finished."},
-  {"-t","--return-timer","Returns the execution time in milliseconds on exited. \n\
-By default, the return value is the one of the program."},
+  {"-e","--exit","Exit on finished without press enter key to exit.\n"
+"By default, you need to press enter key to exit."},
+  {"-n","--no-timer","Do not display execution time.\n"
+"By default, the execution time will be displayed after finished."},
+  {"-t","--return-timer","Returns the execution time in milliseconds on exited.\n"
+"By default, the return value is the one of the program."},
   {"-r","--return-return","Return the \"return value\" from the execution."},
   {"-s","--return-success","Always return success on exited."},
   {"-h","--help","Show this."}
 };
 
+
 int main(int argc,char **argv)
 {
-  bool opt[NumberOfOptions];
+  bool opt[(size_t)NumberOfOptions];
   memset(opt,false,sizeof(opt));
   size_t programsize=0; // for realloc
   char *program=NULL;
@@ -56,15 +58,12 @@ int main(int argc,char **argv)
   {
     if(!endofoptions)
     {
-      // printf("debug");
       if(strcmp(argv[i],"--")==0||strcmp(argv[i],"--command")==0)
       {
-      // printf("debug2");
         endofoptions=true;
       }
       else if(argv[i][0]=='-')
       {
-      // printf("debug3");
         bool unknowed=true;
         for(int j=0;j<NumberOfOptions;j++)
         {
@@ -102,6 +101,11 @@ int main(int argc,char **argv)
           }
         }
         program=(char*)realloc(program,programsize);
+        if(program==NULL) // check for error if couldn't reallocate memory
+        {
+          printf("Error: Couldn't allocate enough memory. Try shorter command line.%s",ENDLINE);
+          return EXIT_FAILURE;
+        }
         strcat(program,(hasspace?" \"":" "));
         strcat(program,argv[i]);
         if(hasspace) strcat(program,"\"");
@@ -120,6 +124,11 @@ int main(int argc,char **argv)
           }
         }
         program=(char*)malloc(programsize*sizeof(char));
+        if(program==NULL) // check for error if couldn't allocate memory
+        {
+          printf("Error: Couldn't allocate enough memory. Try shorter command line.%s",ENDLINE);
+          return EXIT_FAILURE;
+        }
         program[0]='\0';
         if(hasspace) strcat(program,"\"");
         strcat(program,argv[i]);
@@ -150,18 +159,18 @@ int main(int argc,char **argv)
   }
   
   
-  long long timermillis; // use long long to handle large number of milliseconds since epoch
-  double timersec; // i don't know why, but use long double lead to overflows error
+  long long timermillis; // unix: use long long to handle large number of milliseconds since epoch
+  long double timersec; // (not anymore) i don't know why, but use long double lead to overflows error
   int returnvalue;
   
 #if defined(ISWINDOWS)
   
-  clock_t timerclock=clock();
+  long long timerclock=(long long)clock();
   
   returnvalue=start(program);
   
   timerclock=clock()-timerclock;
-  timersec=(double)timerclock/(double)CLOCKS_PER_SEC;
+  timersec=timerclock/(long double)CLOCKS_PER_SEC;
   timermillis=timersec*1000;
   
 #elif defined(ISUNIX) // clock() doesn't seem to be work on linux systems when using system() to start process
@@ -216,7 +225,7 @@ int main(int argc,char **argv)
 
 
 
-int start(const char *command)
+int start(char *command)
 {
 #if defined(ISWINDOWS)
   STARTUPINFO si;
@@ -226,11 +235,11 @@ int start(const char *command)
   si.cb = sizeof(si);
   ZeroMemory( &pi, sizeof(pi) );
   
-  char *command2=(char*)malloc((strlen(command)+1)*sizeof(char)); // +1 for \0 at the end string
-  strcpy(command2,command); // remove "const"
+//  char *command2=(char*)malloc((strlen(command)+1)*sizeof(char)); // +1 for \0 at the end string
+//  strcpy(command2,command); // remove "const"
   
   // bool successed=;
-  if((0==CreateProcess(NULL,command2,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi)))
+  if((0==CreateProcess(NULL,command,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi)))
   {
     DWORD errorcode=GetLastError();
     LPSTR errorstring=NULL;
@@ -249,7 +258,7 @@ int start(const char *command)
   
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
-  free(command2);
+//  free(command2);
   
   return ret;
 #elif defined(ISUNIX)
