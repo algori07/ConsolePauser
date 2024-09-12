@@ -35,11 +35,11 @@ enum Option
 };
 const char *options[NumberOfOptions][3] =
 {
-  {"-e","--exit","Exit on finished without press enter key to exit.\n"
+  {"-e","--exit","Exit on finished without press enter key to exit." ENDLINE
 "By default, you need to press enter key to exit."},
-  {"-n","--no-timer","Do not display execution time.\n"
+  {"-n","--no-timer","Do not display execution time." ENDLINE
 "By default, the execution time will be displayed after finished."},
-  {"-t","--return-timer","Returns the execution time in milliseconds on exited.\n"
+  {"-t","--return-timer","Returns the execution time in milliseconds on exited." ENDLINE
 "By default, the return value is the one of the program."},
   {"-r","--return-return","Return the \"return value\" from the execution."},
   {"-s","--return-success","Always return success on exited."},
@@ -140,11 +140,11 @@ int main(int argc,char **argv)
   if(opt[Help]||argc==1)
   {
     printf("Usage:%s",ENDLINE);
-    printf("  %s [option] [--/--command] <program> [arguments...]%s",argv[0],ENDLINE);
-    printf("Options: %s",ENDLINE);
-    printf("  [--/--command] Everything after --/--command will be <program> [arguments].%s"
-           "Use for program start with\"-\". Without --/--command, <program> [arguments] will%s"
-           "start from the first argument which don't start with \"-\".%s%s",ENDLINE,ENDLINE,ENDLINE,ENDLINE);
+    printf("  %s [option] [--] <program> [arguments...]%s",argv[0],ENDLINE);
+    printf("Options:%s",ENDLINE);
+    printf("  [--] Everything after -- will be <program> [arguments...]. Use for program%s"
+           "has name start with \"-\". By default, <program> is the first argument which%s"
+           "don't start with \"-\" and [arguments...] is the left over.%s",ENDLINE,ENDLINE,ENDLINE);
     for(int j=0;j<NumberOfOptions;j++)
     {
       printf("  [%s/%s] %s %s",options[j][0],options[j][1],options[j][2],ENDLINE);

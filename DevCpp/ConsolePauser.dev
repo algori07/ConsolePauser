@@ -27,8 +27,8 @@ CommandLine=
 Folders=
 IncludeVersionInfo=0
 SupportXPThemes=0
-CompilerSet=2
-CompilerSettings=0000000000000000100000000
+CompilerSet=1
+CompilerSettings=0000000000000000001000000
 UnitCount=1
 
 [VersionInfo]
@@ -40,12 +40,12 @@ LanguageID=1033
 CharsetID=1252
 CompanyName=
 FileVersion=1.0.0.0
-FileDescription=ConsolePauser developed by Pham Nam Khanh
+FileDescription=Developed using the Dev-C++ IDE
 InternalName=
 LegalCopyright=
 LegalTrademarks=
-OriginalFilename=ConsolePauser.exe
-ProductName=Console Pauser
+OriginalFilename=
+ProductName=
 ProductVersion=1.0.0.0
 AutoIncBuildNr=0
 SyncProduct=1
@@ -58,5 +58,5 @@ Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CC) -c main.c -o ./main.o $(CFLAGS)
 

@@ -4,8 +4,12 @@ A simple console program written in C have the same functionality as ConsolePaus
 ## How to use
 Running other program and pause the console before it close. Useful for competitive programming.
 ```
-Command line usage: ConsolePauser.exe [option] "<program> arguments ..."
+Usage:
+  main.c [option] [--] <program> [arguments...]
 Options:
+  [--] Everything after -- will be <program> [arguments...]. Use for program
+has name start with "-". By default, <program> is the first argument which
+don't start with "-" and [arguments...] is the left over.
   [-e/--exit] Exit on finished without press enter key to exit.
 By default, you need to press enter key to exit.
   [-n/--no-timer] Do not display execution time.
@@ -14,10 +18,11 @@ By default, the execution time will be displayed after finished.
 By default, the return value is the one of the program.
   [-r/--return-return] Return the "return value" from the execution.
   [-s/--return-success] Always return success on exited.
-  [-h/--help] Show help.
+  [-h/--help] Show this.
 ```
 ## Example
 ```cpp
+// gcc -o sorting.exe main.cpp
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -27,44 +32,57 @@ int main()
 	vector<int> arr{1,2,4,3,5};
 	sort(arr.begin(),arr.end());
 	cout << "Sorted array: ";
-	for(int &val : arr)
+	for(const int &val : arr)
 	{
 		cout << val << " ";
 	}
-	return 0;
+	return 1234;
 }
 
 ```
-This is an example of sorting an array using std::sort. When run the process with ConsolePauser, it will show you some infomation before the terminal close.
+This is an example of sorting an array using std::sort. When execute command `ConsolePauser -- sorting.exe`, it will show you some infomation before the terminal close.
 ```
 Sorted array: 1 2 3 4 5
 --------------------------------
-Process exited with return value 0 after 0.045s.
+Process exited with return value 1234 after 0.045s.
 Press enter to continue . . .
 ```
 ## How to build
-### Building single file:
-Just build main.c by whatever compiler.
-#### Example on Windows
-- Using TinyCC: `tcc main.c -o ConsolePauser.exe`
-- Using MinGW: `gcc main.c -o ConsolePauser.exe`
-- Using Clang: `clang main.c -o ConsolePauser.exe`
-#### Example on Linux
-- Using TinyCC: `tcc main.c -o consolepauser`
-- Using GCC: `gcc main.c -o consolepauser`
-- Using Clang: `clang main.c -o consolepauser`
+Just build main.c by whatever compiler which is support C99 standard.
+Example: `gcc -o consolepauser main.c` or `gcc -o ConsolePauser.exe main.c`
 
-### Using CMake:
-- Using Visual Studio generator (windows only):
+Or using CMake if you know how to build CMake project.
+```
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+The output executable is in `build/` or `build/Release` folder.
 
-`cmake -B build -G "Visual Studio 16" && cmake --build build --config Release`
+### Building with CMake (all platform)
+- Requirement: `gcc` or `clang`, `make` or `ninja`, `cmake`
+- If you use other compiler, put `-DCMAKE_C_COMPILER=<path_to_compiler>` to the end of the first command below.
 
-(You can replace "16" by other number, cmake --help for more)
+Open terminal in project path and build project using CMake by the following command:
+```
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
 
-You will find ConsolePauser.exe in folder "build\Release"
+### Building with Code::Blocks
+Open `ConsolePauser.cbp` in `CodeBlocks` subfolder using Code::Blocks and build it.
 
-- Using other generator:
+### Building with Dev-C++ (Windows)
+Open `ConsolePauser.dev` in `DevCpp` subfolder using Dev-C++ and build it.
 
-`cmake -B build -G <generator> -DCMAKE_BUILD_TYPE=Release && cmake --build build`
+### Building with VisualStudio (Windows)
+Make sure you have installed `CMake C++ tools for Windows` with Visual Studio Installer
+(auto install when choose Desktop development with C++)
 
-You will find ConsolePauser.exe in folder "build"
+Open `Developer Command Prompt for VS 2019` from `Start menu` and use CMake to build by the following command:
+```batch
+cd /D <project_path>
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+
+
