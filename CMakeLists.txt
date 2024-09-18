@@ -7,7 +7,7 @@ project(ConsolePauser C)
 
 set(TARGET_NAME consolepauser)
 
-option(CP_STATIC_EXECUTABLE "Build static executable.(Currently support GNU and MSVC compiler)" OFF)
+option(CP_STATIC "Build static executable.(Currently support GNU and MSVC compiler)" OFF)
 
 if(WIN32)
 	set(TARGET_NAME ConsolePauser)
@@ -15,7 +15,7 @@ endif()
 
 add_executable(${TARGET_NAME} main.c)
 
-if(CP_STATIC_EXECUTABLE)
+if(CP_STATIC)
 	if(MSVC)
 		target_compile_options(${TARGET_NAME} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
