@@ -20,6 +20,7 @@ if(CP_STATIC)
 		target_compile_options(${TARGET_NAME} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
 		target_compile_options(${TARGET_NAME} PRIVATE "-static")
+		target_compile_options(${TARGET_NAME} PRIVATE "-static-libgcc")
 	endif()
 endif()
 
