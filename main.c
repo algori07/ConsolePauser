@@ -61,6 +61,7 @@ int main(int argc,char **argv)
       if(strcmp(argv[i],"--")==0||strcmp(argv[i],"--command")==0)
       {
         endofoptions=true;
+        i++;
       }
       else if(argv[i][0]=='-')
       {
