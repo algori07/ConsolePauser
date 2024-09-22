@@ -3,7 +3,7 @@
 # Makefile.win
 
 # CMake build directory
-build/
+build*/
 out/
 
 # my custom output folder
