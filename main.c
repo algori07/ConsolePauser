@@ -77,16 +77,16 @@ int main(int argc,char **argv)
         
         if(argv[i][0]=='-') i++;
         size_t programsize=strlen(argv[i])+1; //with \0 character
-        bool hasspace=false;
-        for(int idx=0;argv[i][idx]!='\0';++idx)
-        {
-          if(isspace(argv[i][idx]))
-          {
-            hasspace=true;
-            programsize+=2; // and this -> ""
-            break;
-          }
-        }
+//        bool hasspace=false;
+//        for(int idx=0;argv[i][idx]!='\0';++idx)
+//        {
+//          if(isspace(argv[i][idx]))
+//          {
+//            hasspace=true;
+//            programsize+=2; // and this -> ""
+//            break;
+//          }
+//        }
         program=(char*)calloc(programsize,sizeof(char));
         if(program==NULL) // check for error if couldn't allocate memory
         {
@@ -94,9 +94,9 @@ int main(int argc,char **argv)
           return EXIT_FAILURE;
         }
         program[0]='\0';
-        if(hasspace) strcat(program,"\"");
+//        if(hasspace) strcat(program,"\"");
         strcat(program,argv[i]);
-        if(hasspace) strcat(program,"\"");
+//        if(hasspace) strcat(program,"\"");
         
         argumentsize=1;
         argument=(char**)realloc(argument,argumentsize*sizeof(char*));
@@ -190,7 +190,7 @@ int main(int argc,char **argv)
 
   long long timerclock=(long long)clock();
 
-  start(program,&returnvalue,inputfile,outputfile);
+  start(program,argument,&returnvalue,inputfile,outputfile);
 
   timerclock=clock()-timerclock;
   timersec=timerclock/(long double)CLOCKS_PER_SEC;
@@ -255,6 +255,33 @@ bool start(char *program,char **argument,int *returnvalue,char *inputfile,char *
   HANDLE houtputfile=NULL;
   DWORD ret=-1;
   bool successed=true;
+  
+  char *command=NULL;
+  size_t commandsize=1; // with \0 char
+  command=calloc(1,sizeof(char));
+  command[0]='\0';
+  
+  
+  for(int i=0;argument[i]!=NULL;i++)
+  {
+    commandsize+=strlen(argument[i]);
+    if(i!=0) commandsize+=1; // with space char
+    bool hasspace=false;
+    for(int j=0;argument[i][j]!='\0';j++)
+    {
+      if(isspace(argument[i][j]))
+      {
+        hasspace=true;
+        break;
+      }
+    }
+    if(hasspace) commandsize+=2;
+    command=realloc(command,commandsize*sizeof(char));
+    if(i!=0) strcat(command," ");
+    if(hasspace) strcat(command,"\"");
+    strcat(command,argument[i]);
+    if(hasspace) strcat(command,"\"");
+  }
 
   ZeroMemory(&si,sizeof(si));
   si.cb=sizeof(si);
@@ -337,7 +364,6 @@ exit:
   if(returnvalue!=NULL) *returnvalue=ret;
   return successed;
 #elif defined(ISUNIX)
-  pid_t pid=getpid();
   pid_t newpid=vfork(); // vfork let child process change stdin/stdout without change parent's one
   if(newpid<0)
   {
