@@ -9,16 +9,18 @@ on:
       - main
 
 jobs:
-  build-windows-latest:
+  build-windows-msvc:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [x64, Win32]
+        include:
+          - { vsarch: x64, arch: x86 }
+          - { vsarch: Win32, arch: x64}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Configure CMake (Windows MSVC)
-        run: cmake -S . -B build -A ${{matrix.arch}} -DCP_STATIC=ON
+        run: cmake -S . -B build -A ${{matrix.vsarch}} -DCP_STATIC=ON
         
       - name: Build (Windows MSVC)
         run: cmake --build build --config Release
@@ -29,15 +31,15 @@ jobs:
           name: ConsolePauser-windows-${{matrix.arch}}-static
           path: build/Release/ConsolePauser.exe
 
-  build-msys2-latest:
+  build-windows-msys2:
     runs-on: windows-latest
     strategy:
       matrix:
         include:
-          - { sys: mingw64, env: x86_64 }
-          - { sys: mingw32, env: i686 }
+          - { sys: mingw64, env: x86_64, arch: x64 }
+          - { sys: mingw32, env: i686,   arch: x86 }
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -59,16 +61,16 @@ jobs:
       - name: Archive results
         uses: actions/upload-artifact@v4
         with:
-          name: ConsolePauser-${{matrix.sys}}-static
+          name: ConsolePauser-${{matrix.arch}}-static
           path: build/ConsolePauser.exe
   
-  build-linux:
+  build-linux-gcc:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [i386, x86_64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install dependencies
         run: sudo apt-get install -y gcc gcc-multilib
@@ -78,7 +80,7 @@ jobs:
           if [ "${{matrix.arch}}" == "i386" ]; then
             cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-m32
           else
-            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release
+            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-m64
           fi
           
       - name: Build (Linux)
