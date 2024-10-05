@@ -17,7 +17,7 @@ add_executable(${TARGET_NAME} main.c)
 
 if(CP_STATIC)
 	if(MSVC)
-		target_link_options(${TARGET_NAME} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+		target_compile_options(${TARGET_NAME} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
 		target_link_options(${TARGET_NAME} PRIVATE "-static")
 	endif()
