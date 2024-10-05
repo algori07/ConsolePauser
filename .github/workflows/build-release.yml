@@ -1,0 +1,91 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-windows-latest:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure CMake (Windows MSVC)
+        run: cmake -S . -B build -A ${{matrix.arch}} -DCP_STATIC=ON
+        
+      - name: Build (Windows MSVC)
+        run: cmake --build build --config Release
+        
+      - name: Archive results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-windows-${{matrix.arch}}-static
+          path: build/Release/ConsolePauser.exe
+
+  build-msys2-latest:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          install: |
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-cmake
+            mingw-w64-${{matrix.env}}-ninja
+          
+      - name: Configure CMake (MSYS2 (${{matrix.sys}}))
+        shell: msys2 {0}
+        run: cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -DCP_STATIC=ON
+      
+      - name: Build (MSYS2 (${{matrix.sys}}))
+        shell: msys2 {0}
+        run: cmake --build build
+       
+      - name: Archive results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-${{matrix.sys}}-static
+          path: build/ConsolePauser.exe
+  
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [i386, x86_64]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: sudo apt-get install -y gcc gcc-multilib
+        
+      - name: Configure CMake (Linux)
+        run: |
+          if [ "${{matrix.arch}}" == "i386" ]; then
+            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-m32
+          else
+            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release
+          fi
+          
+      - name: Build (Linux)
+        run: cmake --build build --config Release
+        
+      - name: Archive results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-linux-${{matrix.arch}}-static
+          path: build/consolepauser
