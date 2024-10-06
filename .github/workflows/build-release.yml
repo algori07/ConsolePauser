@@ -22,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ConsolePauser-windows-msvc-x86-static
-          path: build/Release/ConsolePauser.exe
+          path: build-32bit/Release/ConsolePauser.exe
           
       - name: Configure CMake (MSVC 64bit)
         run: cmake -S . -B build-64bit -A x64 -DCP_STATIC=ON -DCMAKE_CONFIGURATION_TYPES="Release"
@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ConsolePauser-windows-msvc-x86-static
-          path: build/Release/ConsolePauser.exe
+          path: build-64bit/Release/ConsolePauser.exe
 
   build-windows-msys2:
     runs-on: windows-latest
