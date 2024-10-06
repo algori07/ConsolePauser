@@ -11,33 +11,31 @@ on:
 jobs:
   build-windows-msvc:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - { vsarch: x64, arch: x86 }
-          - { vsarch: Win32, arch: x64}
     steps:
       - uses: actions/checkout@v4
       
-      - name: Configure CMake (Windows MSVC)
-        run: cmake -S . -B build -A ${{matrix.vsarch}} -DCP_STATIC=ON
-        
-      - name: Build (Windows MSVC)
-        run: cmake --build build --config Release
-        
+      - name: Configure CMake (MSVC 32bit)
+        run: cmake -S . -B build-32bit -A Win32 -DCP_STATIC=ON -DCMAKE_CONFIGURATION_TYPES="Release"
+      - name: Build (MSVC 32bit)
+        run: cmake --build build-32bit --config Release
       - name: Archive results
         uses: actions/upload-artifact@v4
         with:
-          name: ConsolePauser-windows-msvc-${{matrix.arch}}-static
+          name: ConsolePauser-windows-msvc-x86-static
+          path: build/Release/ConsolePauser.exe
+          
+      - name: Configure CMake (MSVC 64bit)
+        run: cmake -S . -B build-32bit -A x64 -DCP_STATIC=ON -DCMAKE_CONFIGURATION_TYPES="Release"
+      - name: Build (MSVC 64bit)
+        run: cmake --build build-64bit --config Release
+      - name: Archive results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-windows-msvc-x86-static
           path: build/Release/ConsolePauser.exe
 
   build-windows-msys2:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - { sys: mingw64, env: x86_64, arch: x64 }
-          - { sys: mingw32, env: i686,   arch: x86 }
     steps:
       - uses: actions/checkout@v4
       
@@ -46,48 +44,63 @@ jobs:
         with:
           msystem: ${{matrix.sys}}
           install: |
-            mingw-w64-${{matrix.env}}-gcc
-            mingw-w64-${{matrix.env}}-cmake
-            mingw-w64-${{matrix.env}}-ninja
+            mingw-w64-i686-gcc
+            mingw-w64-i686-cmake
+            mingw-w64-i686-ninja
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
           
-      - name: Configure CMake (MSYS2 (${{matrix.sys}}))
-        shell: msys2 {0}
-        run: cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -DCP_STATIC=ON
-      
-      - name: Build (MSYS2 (${{matrix.sys}}))
-        shell: msys2 {0}
-        run: cmake --build build
-       
-      - name: Archive results
+      - name: Configure CMake (MSYS2 MINGW32)
+        run: |
+          set MSYSTEM=MINGW32
+          msys2 -c 'cmake -B build-mingw32 -G "Ninja" -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release'
+      - name: Build (MSYS2 MINGW32)
+        run: msys2 -c 'cmake --build build-mingw32'
+      - name: Archive results (MSYS2 MINGW32)
         uses: actions/upload-artifact@v4
         with:
-          name: ConsolePauser-windows-${{matrix.sys}}-${{matrix.arch}}-static
-          path: build/ConsolePauser.exe
+          name: ConsolePauser-windows-mingw-x86-static
+          path: build-mingw32/ConsolePauser.exe
+        
+      - name: Configure CMake (MSYS2 MINGW64)
+        run: |
+          set MSYSTEM=MINGW64
+          msys2 -c 'cmake -B build-mingw64 -G "Ninja" -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release'
+      - name: Build (MSYS2 MINGW64)
+        run: msys2 -c 'cmake --build build-mingw64'
+      - name: Archive results (MSYS2 MINGW64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-windows-mingw-x64-static
+          path: build-mingw64/ConsolePauser.exe
   
   build-linux-gcc:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [i386, x86_64]
     steps:
       - uses: actions/checkout@v4
       
       - name: Install dependencies
-        run: sudo apt-get install -y gcc gcc-multilib
+        run: sudo apt-get install -y gcc gcc-multilib cmake ninja
         
-      - name: Configure CMake (Linux)
-        run: |
-          if [ "${{matrix.arch}}" == "i386" ]; then
-            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-m32
-          else
-            cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCP_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-m64
-          fi
-          
-      - name: Build (Linux)
-        run: cmake --build build --config Release
-        
-      - name: Archive results
+      - name: Configure CMake (Linux i386)
+        run: cmake -S . -B build-i386 -G Ninja -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build (Linux i386)
+        run: cmake --build build-i386 --config Release
+      - name: Archive results (i386)
         uses: actions/upload-artifact@v4
         with:
-          name: ConsolePauser-linux-${{matrix.arch}}-static
-          path: build/consolepauser
+          name: ConsolePauser-linux-i386-static
+          path: |
+            build-i386/consolepauser
+        
+      - name: Configure CMake (Linux x86_64)
+        run: cmake -S . -B build-x86_64 -G Ninja -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build (Linux x86_64)
+        run: cmake --build build-x86_64 --config Release
+      - name: Archive results (x86_64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConsolePauser-linux-x86_64-static
+          path: |
+            build-x86_64/consolepauser
