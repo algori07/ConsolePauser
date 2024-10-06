@@ -16,6 +16,8 @@ jobs:
         include:
           - { varch: x64, arch: x64 }
           - { varch: Win32, arch: x86 }
+          - { varch: ARM, arch: arm }
+          - { varch: ARM64, arch: arm64 }
     steps:
       - uses: actions/checkout@v4
       
@@ -63,7 +65,7 @@ jobs:
         
       - name: Build
         shell: msys2 {0}
-        run: cmake --build build
+        run: cmake --build build --config Release
         
       - name: Archive results
         uses: actions/upload-artifact@v4
@@ -76,20 +78,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - { cflags: -m32, arch: i386 }
-          - { cflags: -m64, arch: x86_64 }
+          - { arch: x86_64, package: gcc-x86-64-linux-gnu, compiler: x86_64-linux-gnu-gcc }
+          - { arch: i386, package: gcc-i686-linux-gnu, compiler: i686-linux-gnu-gcc }
+          - { arch: armel, package: gcc-arm-linux-gnueabi, compiler: arm-linux-gnueabi-gcc }
+          - { arch: armhf, package: gcc-arm-linux-gnueabihf, compiler: arm-linux-gnueabihf-gcc }
+          - { arch: arm64, package: gcc-aarch64-linux-gnu, compiler: aarch64-linux-gnu-gcc }
     steps:
       - uses: actions/checkout@v4
       
       - name: Install dependencies
-        run: sudo apt-get install -y gcc gcc-multilib cmake ninja-build
+        run: |
+          sudo apt install -y ${{matrix.package}} cmake ninja-build
         
       - name: Configure CMake
         run: >
           cmake -S . -B build -G Ninja 
           -DCP_STATIC=ON
-          -DCMAKE_C_COMPILER=gcc
-          -DCMAKE_C_FLAGS=${{matrix.cflags}}
+          -DCMAKE_C_COMPILER=${{matrix.compiler}}
           -DCMAKE_BUILD_TYPE=Release
       
       - name: Build
