@@ -55,7 +55,9 @@ jobs:
           set MSYSTEM=MINGW32
           msys2 -c 'cmake -B build-mingw32 -G "Ninja" -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release'
       - name: Build (MSYS2 MINGW32)
-        run: msys2 -c 'cmake --build build-mingw32'
+        run: |
+          set MSYSTEM=MINGW32
+          msys2 -c 'cmake --build build-mingw32'
       - name: Archive results (MSYS2 MINGW32)
         uses: actions/upload-artifact@v4
         with:
@@ -67,7 +69,9 @@ jobs:
           set MSYSTEM=MINGW64
           msys2 -c 'cmake -B build-mingw64 -G "Ninja" -DCP_STATIC=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release'
       - name: Build (MSYS2 MINGW64)
-        run: msys2 -c 'cmake --build build-mingw64'
+        run: |
+          set MSYSTEM=MINGW64
+          msys2 -c 'cmake --build build-mingw64'
       - name: Archive results (MSYS2 MINGW64)
         uses: actions/upload-artifact@v4
         with:
