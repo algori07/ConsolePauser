@@ -31,7 +31,7 @@ jobs:
       - name: Archive results
         uses: actions/upload-artifact@v4
         with:
-          name: ConsolePauser-windows-msvc-x86-static
+          name: ConsolePauser-windows-msvc-x64-static
           path: build-64bit/Release/ConsolePauser.exe
 
   build-windows-msys2:
