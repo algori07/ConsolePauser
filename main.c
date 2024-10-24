@@ -86,8 +86,9 @@ int main(int _argc,char **_argv)
   LPCWSTR lpCmdLine=GetCommandLineW();
   int argc;
   wchar_t **argv=CommandLineToArgvW(lpCmdLine,&argc);
-  wmain(argc,argv);
+  int ret=wmain(argc,argv);
   LocalFree(argv);
+  return ret;
 }
 #endif // _MSC_VER
 int wmain(int argc,wchar_t **argv)
