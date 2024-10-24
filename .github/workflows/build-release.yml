@@ -44,7 +44,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create &{{ github.ref }} build/Release/ConsolePauser
+          gh release create ${{ github.ref }} build/Release/ConsolePauser
 
   build-windows-msys2:
     runs-on: windows-latest
@@ -88,7 +88,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create &{{ github.ref }} build/ConsolePauser.exe
+          gh release create ${{ github.ref }} build/ConsolePauser.exe
   
   build-linux-gcc:
     runs-on: ubuntu-latest
@@ -129,4 +129,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create &{{ github.ref }} build/consolepauser
+          gh release create ${{ github.ref }} build/consolepauser
