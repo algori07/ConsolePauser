@@ -1,6 +1,7 @@
 # Console Pauser
 ## Introduce
-A simple console program written in C have the same functionality as ConsolePauser.exe that come with Dev-C++. I made it for cross-platform purposes and usable in other projects.
+A simple console program written in C have the same functionality as ConsolePauser.exe that come
+with Dev-C++. I made it for cross-platform purposes and usable in other projects.
 ## How to use
 Running other program and pause the console before it close. Useful for competitive programming.
 ```
@@ -49,7 +50,8 @@ int main()
 }
 
 ```
-This is an example of sorting an array using std::sort. When execute command `ConsolePauser -- sorting.exe`, it will show you some infomation before the terminal close.
+This is an example of sorting an array using std::sort. When execute command`ConsolePauser -- sorting.exe`,
+it will show you some infomation before the terminal close.
 ```
 n: 5
 arr: 5 2 4 3 1
@@ -68,7 +70,7 @@ Now, all content of `sorting.inp` will be `stdin` of `sorting.exe`.
 Read `[-i/-o]` options for more infomations.
 
 ## How to build
-Just build main.c by whatever compiler which is support C99 standard.
+Just build main.c by whatever compiler supporting C99 standard.
 If you use an old compiler, just wish. I haven't test too much with old compiler.
 
 Example: `gcc -o consolepauser main.c` or `gcc -o ConsolePauser.exe main.c`
@@ -82,7 +84,8 @@ The output executable is in `build/` or `build/Release` folder.
 
 ### Building with CMake (Windows, Linux, MacOS(maybe))
 - Requirement: `gcc` or `clang`, `make` or `ninja`, `cmake`
-- If you use other compiler, put `-DCMAKE_C_COMPILER=<path_to_compiler>` to the end of the first command below.
+- If you use other compiler, put `-DCMAKE_C_COMPILER=<path_to_compiler>` to the end of the first command
+- below.
 
 Open terminal in project path and build project using CMake by the following command:
 ```
@@ -104,8 +107,9 @@ Make sure you have installed `CMake C++ tools for Windows` with Visual Studio In
 Open `Developer Command Prompt for VS 2019` from `Start menu` and use CMake to build by the following command:
 ```batch
 cd /D <project_path>
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 
-
+Note that if you use other version of Visual Studio(example: `Visual Studio 2022`), the name of shortcut
+in `Start menu` will have different number.
