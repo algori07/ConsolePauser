@@ -146,7 +146,7 @@ jobs:
           name: ConsolePauser-linux-${{matrix.arch}}-static
           path: build/consolepauser
       
-      - name: Archive result on Ubuntu
+      - name: Archive result
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: bash
         run: |
