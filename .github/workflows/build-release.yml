@@ -29,7 +29,8 @@ jobs:
           cmake -S . -B build -A ${{matrix.varch}}
           -DCP_STATIC=ON
           -DCMAKE_CONFIGURATION_TYPES="Release"
-          
+          -DCMAKE_C_COMPILER_WORKS=1
+        
       - name: Build
         run: cmake --build build --config Release
         
