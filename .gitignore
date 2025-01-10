@@ -1,6 +1,10 @@
 # VSCode
 .vscode
 
+# Visual Studio
+.vs/
+CMakeSettings.json
+
 # Dev-C++ output file
 # *.layout
 # Makefile.win

@@ -33,22 +33,20 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
         
+      - name: Generate installation dir
+        run: cmake --install build --prefix install
+        
       - name: Upload artifact
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
           name: ConsolePauser-windows-msvc-${{matrix.arch}}-static
-          path: build/Release/ConsolePauser.exe
+          path: install/bin/ConsolePauser.exe
       
       - name: Archive result
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: powershell
-        run: |
-          New-Item -ItemType Directory -Path temp/bin -Force
-          New-Item -ItemType Directory -Path release -Force
-          Copy-Item -Path build/Release/ConsolePauser.exe -Destination temp/bin/
-          Compress-Archive -Path temp/bin -DestinationPath release/ConsolePauser-windows-msvc-${{matrix.arch}}-static.zip
-          Remove-Item -Recurse -Force temp
+        run: Compress-Archive -Path install/bin -DestinationPath release/ConsolePauser-windows-msvc-${{matrix.arch}}-static.zip
       
       - name: Upload release
         if: github.event_name == 'release' && github.event.action == 'created'
@@ -88,22 +86,21 @@ jobs:
         shell: msys2 {0}
         run: cmake --build build --config Release
         
+      - name: Generate installation dir
+        shell: msys2 {0}
+        run: cmake --install build --prefix install
+        
       - name: Upload artifact
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
           name: ConsolePauser-windows-mingw-${{matrix.arch}}-static
-          path: build/ConsolePauser.exe
+          path: install/bin/ConsolePauser.exe
           
       - name: Archive result
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: powershell
-        run: |
-          New-Item -ItemType Directory -Path temp/bin -Force
-          New-Item -ItemType Directory -Path release -Force
-          Copy-Item -Path build/ConsolePauser.exe -Destination temp/bin/
-          Compress-Archive -Path temp/bin -DestinationPath release/ConsolePauser-windows-mingw-${{matrix.arch}}-static.zip
-          Remove-Item -Recurse -Force temp
+        run: Compress-Archive -Path install/bin -DestinationPath release/ConsolePauser-windows-mingw-${{matrix.arch}}-static.zip
         
       - name: Upload release
         if: github.event_name == 'release' && github.event.action == 'created'
@@ -139,22 +136,20 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
         
+      - name: Generate installation dir
+        run: cmake --install build --prefix install
+        
       - name: Upload artifact
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
           name: ConsolePauser-linux-${{matrix.arch}}-static
-          path: build/consolepauser
+          path: install/bin/consolepauser
       
       - name: Archive result
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: bash
-        run: |
-          mkdir -p temp/bin
-          mkdir -p release
-          cp build/consolepauser temp/bin/
-          tar -czvf release/ConsolePauser-linux-${{matrix.arch}}-static.tar.gz -C temp bin
-          rm -rf temp
+        run: tar -czvf release/ConsolePauser-linux-${{matrix.arch}}-static.tar.gz -C install bin
       
       - name: Upload release
         if: github.event_name == 'release' && github.event.action == 'created'
